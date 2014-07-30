@@ -37,6 +37,7 @@
 #include "platform/fonts/FontCache.h"
 #include "platform/fonts/FontDescription.h"
 #include "platform/graphics/GraphicsContext.h"
+#include "platform/fonts/BitmapFontData.h"
 #include "platform/text/TextRun.h"
 #include "public/platform/WebFloatPoint.h"
 #include "public/platform/WebFloatRect.h"
@@ -45,6 +46,11 @@
 using namespace WebCore;
 
 namespace blink {
+
+bool WebFont::initBitmapFont(const char *path)
+{
+    return BitmapFontData::init(path);
+}
 
 WebFont* WebFont::create(const WebFontDescription& desc)
 {

@@ -48,6 +48,8 @@ class WebFont {
 public:
     virtual ~WebFont() { }
 
+    BLINK_EXPORT static bool initBitmapFont(const char* path);
+
     BLINK_EXPORT static WebFont* create(const WebFontDescription&);
 
     virtual WebFontDescription fontDescription() const = 0;

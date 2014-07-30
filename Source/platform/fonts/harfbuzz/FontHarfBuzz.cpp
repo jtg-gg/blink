@@ -62,12 +62,14 @@ static void paintGlyphs(GraphicsContext* gc, const SimpleFontData* font,
     SkPoint* pos, const FloatRect& textRect)
 {
     TextDrawingModeFlags textMode = gc->textDrawingMode();
+    const BitmapFontData* const bitmapFontData = font->bitmapFontData();
 
     // We draw text up to two times (once for fill, once for stroke).
     if (textMode & TextModeFill) {
         SkPaint paint;
         gc->setupPaintForFilling(&paint);
         font->platformData().setupPaint(&paint, gc);
+        if (bitmapFontData) paint.setTypeface(bitmapFontData->typeface());
         gc->adjustTextRenderMode(&paint);
         paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
@@ -81,6 +83,7 @@ static void paintGlyphs(GraphicsContext* gc, const SimpleFontData* font,
         SkPaint paint;
         gc->setupPaintForStroking(&paint);
         font->platformData().setupPaint(&paint, gc);
+        if (bitmapFontData) paint.setTypeface(bitmapFontData->typeface());
         gc->adjustTextRenderMode(&paint);
         paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 

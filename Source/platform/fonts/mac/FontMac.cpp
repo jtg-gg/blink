@@ -36,6 +36,7 @@
 #include "platform/fonts/FontSmoothingMode.h"
 #include "platform/fonts/GlyphBuffer.h"
 #include "platform/fonts/SimpleFontData.h"
+#include "platform/fonts/BitmapFontData.h"
 #include "platform/graphics/GraphicsContext.h"
 
 #include "third_party/skia/include/core/SkCanvas.h"
@@ -63,7 +64,17 @@ static void setupPaint(SkPaint* paint, const SimpleFontData* fontData, const Fon
     paint->setEmbeddedBitmapText(false);
     paint->setTextSize(SkFloatToScalar(textSize));
     paint->setVerticalText(platformData.orientation() == Vertical);
-    paint->setTypeface(platformData.typeface());
+  
+    BitmapFontData* bfData = static_cast<BitmapFontData*>(fontData->bitmapFontData());
+    SkTypeface* typeface;
+    if (bfData == NULL) {
+        typeface = platformData.typeface();
+    }
+    else {
+        typeface = bfData->typeface();
+    }
+  
+    paint->setTypeface(typeface);
     paint->setFakeBoldText(platformData.m_syntheticBold);
     paint->setTextSkewX(platformData.m_syntheticOblique ? -SK_Scalar1 / 4 : 0);
     paint->setAutohinted(false); // freetype specific

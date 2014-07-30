@@ -34,6 +34,7 @@
 #include "platform/fonts/GlyphMetricsMap.h"
 #include "platform/fonts/GlyphPageTreeNode.h"
 #include "platform/fonts/TypesettingFeatures.h"
+#include "platform/fonts/BitmapFontData.h"
 #include "platform/fonts/opentype/OpenTypeVerticalData.h"
 #include "platform/geometry/FloatRect.h"
 #include "wtf/OwnPtr.h"
@@ -66,6 +67,12 @@ public:
     static PassRefPtr<SimpleFontData> create(PassRefPtr<CustomFontData> customData, float fontSize, bool syntheticBold, bool syntheticItalic)
     {
         return adoptRef(new SimpleFontData(customData, fontSize, syntheticBold, syntheticItalic));
+    }
+  
+    // Used to create Bitmap Fonts.
+    static PassRefPtr<SimpleFontData> create(PassRefPtr<BitmapFontData> fontData, float fontSize, bool syntheticBold, bool syntheticItalic)
+    {
+        return adoptRef(new SimpleFontData(fontData, fontSize, syntheticBold, syntheticItalic));
     }
 
     virtual ~SimpleFontData();
@@ -143,6 +150,8 @@ public:
     Pitch pitch() const { return m_treatAsFixedPitch ? FixedPitch : VariablePitch; }
 
     bool isSVGFont() const { return m_customFontData && m_customFontData->isSVGFont(); }
+    BitmapFontData* bitmapFontData() const { return m_bitmapFontData.get(); }
+
     virtual bool isCustomFont() const OVERRIDE { return m_customFontData; }
     virtual bool isLoading() const OVERRIDE { return m_customFontData ? m_customFontData->isLoading() : false; }
     virtual bool isLoadingFallback() const OVERRIDE { return m_customFontData ? m_customFontData->isLoadingFallback() : false; }
@@ -179,6 +188,9 @@ private:
 
     SimpleFontData(PassRefPtr<CustomFontData> customData, float fontSize, bool syntheticBold, bool syntheticItalic);
 
+    SimpleFontData(PassRefPtr<BitmapFontData> , float fontSize, bool syntheticBold, bool syntheticItalic);
+
+
     void platformInit();
     void platformGlyphInit();
     void platformCharWidthInit();
@@ -194,6 +206,7 @@ private:
     float m_avgCharWidth;
 
     FontPlatformData m_platformData;
+    RefPtr<BitmapFontData> m_bitmapFontData;
 
     mutable OwnPtr<GlyphMetricsMap<FloatRect> > m_glyphToBoundsMap;
     mutable GlyphMetricsMap<float> m_glyphToWidthMap;
@@ -288,6 +301,8 @@ ALWAYS_INLINE float SimpleFontData::widthForGlyph(Glyph glyph) const
         width = m_verticalData->advanceHeight(this, glyph);
 #endif
 #endif
+    else if (m_bitmapFontData)
+        width = m_bitmapFontData->widthForGlyph(glyph, m_platformData.size());
     else
         width = platformWidthForGlyph(glyph);
 

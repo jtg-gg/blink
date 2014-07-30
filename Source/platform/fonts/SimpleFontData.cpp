@@ -77,6 +77,21 @@ SimpleFontData::SimpleFontData(PassRefPtr<CustomFontData> customData, float font
     if (m_customFontData)
         m_customFontData->initializeFontData(this, fontSize);
 }
+  
+SimpleFontData::SimpleFontData(PassRefPtr<BitmapFontData> fontData, float fontSize, bool syntheticBold, bool syntheticItalic)
+    : m_platformData(FontPlatformData(fontSize, syntheticBold, syntheticItalic))
+    , m_bitmapFontData(fontData)
+    , m_treatAsFixedPitch(false)
+    , m_isTextOrientationFallback(false)
+    , m_isBrokenIdeographFallback(false)
+#if ENABLE(OPENTYPE_VERTICAL)
+    , m_verticalData(nullptr)
+#endif
+    , m_hasVerticalGlyphs(false)
+    , m_customFontData(nullptr)
+{
+    m_bitmapFontData->initializeFontData(this, fontSize);
+}
 
 // Estimates of avgCharWidth and maxCharWidth for platforms that don't support accessing these values from the font.
 void SimpleFontData::initCharWidths()

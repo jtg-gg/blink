@@ -33,6 +33,7 @@
 #include "platform/fonts/GlyphPageTreeNode.h"
 #include "platform/fonts/SimpleFontData.h"
 #include "platform/fonts/WidthIterator.h"
+#include "platform/fonts/BitmapFontData.h"
 #include "platform/geometry/FloatRect.h"
 #include "platform/text/TextRun.h"
 #include "wtf/MainThread.h"
@@ -491,6 +492,11 @@ std::pair<GlyphData, GlyphPage*> Font::glyphDataAndPageForCharacter(UChar32 c, b
         characterToRender = Character::normalizeSpaces(characterToRender);
     const SimpleFontData* fontDataToSubstitute = fontDataAt(0)->fontDataForCharacter(characterToRender);
     RefPtr<SimpleFontData> characterFontData = FontCache::fontCache()->platformFallbackForCharacter(m_fontDescription, characterToRender, fontDataToSubstitute);
+    if (characterFontData == NULL || characterToRender > 0xFFFF) {
+        RefPtr<SimpleFontData> bitmapFontData = BitmapFontData::get(*this, characterToRender);
+        if (bitmapFontData)
+            characterFontData = bitmapFontData;
+    }
     if (characterFontData) {
         if (characterFontData->platformData().orientation() == Vertical && !characterFontData->hasVerticalGlyphs() && Character::isCJKIdeographOrSymbol(c))
             variant = BrokenIdeographVariant;

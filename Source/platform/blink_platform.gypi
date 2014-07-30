@@ -320,6 +320,8 @@
       'exported/linux/WebFontInfo.cpp',
       'exported/linux/WebFontRenderStyle.cpp',
       'fonts/AlternateFontFamily.h',
+      'fonts/BitmapFontData.h',
+      'fonts/BitmapFontData.cpp',
       'fonts/Character.cpp',
       'fonts/Character.h',
       'fonts/CustomFontData.h',
