@@ -126,6 +126,8 @@ PassRefPtr<SimpleFontData> FontCache::fallbackFontForCharacter(const FontDescrip
         L"lucida sans unicode",
         L"microsoft sans serif",
         L"palatino linotype",
+        L"segoe ui emoji",
+        L"segoe ui symbol",
         // Six fonts below (and code2000 at the end) are not from MS, but
         // once installed, cover a very wide range of characters.
         L"dejavu serif",
@@ -138,7 +140,7 @@ PassRefPtr<SimpleFontData> FontCache::fallbackFontForCharacter(const FontDescrip
         L"simsun",
         L"gulim",
         L"pmingliu",
-        L"code2000"
+        L"code2000",
     };
 
     const wchar_t* const* panUniFonts = 0;

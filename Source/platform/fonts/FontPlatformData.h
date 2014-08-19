@@ -42,6 +42,7 @@ typedef const struct __CTFont* CTFontRef;
 
 #include <CoreFoundation/CFBase.h>
 #include <objc/objc-auto.h>
+#include <CoreGraphics/CGAffineTransform.h>
 
 #include "wtf/Forward.h"
 #include "wtf/HashTableDeletedValueType.h"
@@ -85,6 +86,9 @@ public:
 
     CGFontRef cgFont() const { return m_cgFont.get(); }
     CTFontRef ctFont() const;
+    CTFontRef ctBitmapColorFont() const;
+    CGAffineTransform ctBitmapColorFontMat() const { return m_CTColorBitmapFontMat; }
+
     SkTypeface* typeface() const;
 
     bool roundsGlyphAdvances() const;
@@ -162,6 +166,8 @@ private:
     NSFont* m_font;
     RetainPtr<CGFontRef> m_cgFont;
     mutable RetainPtr<CTFontRef> m_CTFont;
+    mutable RetainPtr<CTFontRef> m_CTColorBitmapFont;
+    mutable CGAffineTransform m_CTColorBitmapFontMat;
 
     RefPtr<MemoryActivatedFont> m_inMemoryFont;
     RefPtr<HarfBuzzFace> m_harfBuzzFace;
