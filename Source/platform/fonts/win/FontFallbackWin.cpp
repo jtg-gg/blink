@@ -266,7 +266,7 @@ const UChar* getFontBasedOnUnicodeBlock(int ucs4, SkFontMgr* fontManager)
 {
     static const UChar* emojiFonts[] = {L"Segoe UI Emoji", L"Segoe UI Symbol"};
     static const UChar* symbolFont = L"Segoe UI Symbol";
-    const UChar* emojiFont = 0;
+    static const UChar* emojiFont = 0;
     static bool initialized = false;
     if (!initialized) {
         for (size_t i = 0; i < WTF_ARRAY_LENGTH(emojiFonts); i++) {
@@ -290,7 +290,8 @@ const UChar* getFontBasedOnUnicodeBlock(int ucs4, SkFontMgr* fontManager)
     case UBLOCK_RUNIC:
     case UBLOCK_SUPPLEMENTAL_MATHEMATICAL_OPERATORS:
     case UBLOCK_DINGBATS:
-        return symbolFont;
+        //return symbolFont;
+        return emojiFont;
     default:
         return 0;
     };
