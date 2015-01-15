@@ -168,6 +168,8 @@ PassRefPtr<SimpleFontData> FontCache::fallbackFontForCharacter(
         L"lucida sans unicode",
         L"microsoft sans serif",
         L"palatino linotype",
+        L"segoe ui emoji",
+        L"segoe ui symbol",
         // Six fonts below (and code2000 at the end) are not from MS, but
         // once installed, cover a very wide range of characters.
         L"dejavu serif",
