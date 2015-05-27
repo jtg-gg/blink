@@ -45,9 +45,11 @@
 #include "platform/weborigin/SecurityPolicy.h"
 #include "public/platform/WebURLRequest.h"
 
+#include "core/loader/FrameLoaderClient.h"
+
 namespace blink {
 
-static LocalFrame* createWindow(LocalFrame& openerFrame, LocalFrame& lookupFrame, const FrameLoadRequest& request, const WindowFeatures& features, NavigationPolicy policy, ShouldSendReferrer shouldSendReferrer, bool& created)
+static LocalFrame* createWindow(LocalFrame& openerFrame, LocalFrame& lookupFrame, const FrameLoadRequest& request, const WindowFeatures& features, NavigationPolicy policy, ShouldSendReferrer shouldSendReferrer, bool& created, WebString* manifest)
 {
     ASSERT(!features.dialog || request.frameName().isEmpty());
     ASSERT(request.resourceRequest().requestorOrigin() || openerFrame.document()->url().isEmpty());
@@ -87,7 +89,8 @@ static LocalFrame* createWindow(LocalFrame& openerFrame, LocalFrame& lookupFrame
     if (!oldPage)
         return nullptr;
 
-    Page* page = oldPage->chrome().client().createWindow(&openerFrame, request, features, policy, shouldSendReferrer);
+    WebString manifest_str(*manifest);
+    Page* page = oldPage->chrome().client().createWindow(&openerFrame, request, features, policy, shouldSendReferrer, &manifest_str);
     if (!page || !page->mainFrame()->isLocalFrame())
         return nullptr;
     FrameHost* host = &page->frameHost();
@@ -152,14 +155,26 @@ LocalFrame* createWindow(const String& urlString, const AtomicString& frameName,
 
     bool hasUserGesture = UserGestureIndicator::processingUserGesture();
 
+    NavigationPolicy navigationPolicy = NavigationPolicyNewForegroundTab;
+    WebString manifest;
+    openerFrame.loader().client()->willHandleNavigationPolicy(frameRequest.resourceRequest(), &navigationPolicy, &manifest);
+
     // We pass the opener frame for the lookupFrame in case the active frame is different from
     // the opener frame, and the name references a frame relative to the opener frame.
-    bool created;
-    LocalFrame* newFrame = createWindow(*activeFrame, openerFrame, frameRequest, windowFeatures, NavigationPolicyIgnore, MaybeSendReferrer, created);
-    if (!newFrame)
-        return nullptr;
+    bool created = false;
+    LocalFrame* newFrame = nullptr;
+    if (navigationPolicy != NavigationPolicyIgnore &&
+        navigationPolicy != NavigationPolicyCurrentTab) {
+        newFrame = createWindow(*activeFrame, openerFrame, frameRequest, windowFeatures, NavigationPolicyIgnore, MaybeSendReferrer, created, &manifest);
 
-    newFrame->loader().setOpener(&openerFrame);
+        if (!newFrame)
+           return nullptr;
+
+        newFrame->loader().setOpener(&openerFrame);
+    } else if (navigationPolicy == NavigationPolicyIgnore)
+        return 0;
+    else
+        newFrame = &openerFrame;
 
     if (newFrame->localDOMWindow()->isInsecureScriptAccess(callingWindow, completedURL))
         return newFrame;
@@ -174,7 +189,7 @@ LocalFrame* createWindow(const String& urlString, const AtomicString& frameName,
     return newFrame;
 }
 
-void createWindowForRequest(const FrameLoadRequest& request, LocalFrame& openerFrame, NavigationPolicy policy, ShouldSendReferrer shouldSendReferrer)
+void createWindowForRequest(const FrameLoadRequest& request, LocalFrame& openerFrame, NavigationPolicy policy, ShouldSendReferrer shouldSendReferrer, WebString& manifest)
 {
     ASSERT(request.resourceRequest().requestorOrigin() || (openerFrame.document() && openerFrame.document()->url().isEmpty()));
 
@@ -192,7 +207,7 @@ void createWindowForRequest(const FrameLoadRequest& request, LocalFrame& openerF
 
     WindowFeatures features;
     bool created;
-    LocalFrame* newFrame = createWindow(openerFrame, openerFrame, request, features, policy, shouldSendReferrer, created);
+    LocalFrame* newFrame = createWindow(openerFrame, openerFrame, request, features, policy, shouldSendReferrer, created, &manifest);
     if (!newFrame)
         return;
     if (shouldSendReferrer == MaybeSendReferrer) {

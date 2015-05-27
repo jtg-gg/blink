@@ -5496,7 +5496,7 @@ TEST_F(WebFrameTest, SimulateFragmentAnchorMiddleClick)
 class TestNewWindowWebViewClient : public FrameTestHelpers::TestWebViewClient {
 public:
     virtual WebView* createView(WebLocalFrame*, const WebURLRequest&, const WebWindowFeatures&,
-        const WebString&, WebNavigationPolicy, bool) override
+                                const WebString&, WebNavigationPolicy, bool, WebString*) override
     {
         EXPECT_TRUE(false);
         return 0;
