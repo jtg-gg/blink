@@ -171,8 +171,15 @@ static inline int nextBreakablePosition(LazyLineBreakIterator& lazyBreakIterator
                     }
                 }
             }
-            if (i == nextBreak && !isBreakableSpace<treatNoBreakSpaceAsBreak>(lastCh))
+            if (i == nextBreak && !isBreakableSpace<treatNoBreakSpaceAsBreak>(lastCh)) {
+                if (i + 1 < len && ch == 0xd83c) {
+                    const CharacterType nextCh = str[i + 1];
+                    if (nextCh >= 0xdffb && nextCh <= 0xdfff) {
+                        return i + 2;
+                    }
+                }
                 return i;
+            }
         }
 
         lastLastCh = lastCh;
