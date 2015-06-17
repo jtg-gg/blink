@@ -651,7 +651,8 @@ static inline void resolveRunBasedOnScriptValue(Vector<CandidateRun>& runs,
     if (run.script != USCRIPT_COMMON)
         return;
 
-    if (i > 0 && runs[i - 1].script != USCRIPT_COMMON) {
+    const bool isEmojiModifier = run.character >= 0x1F3FB && run.character <= 0x1F3FF;
+    if (!isEmojiModifier && i > 0 && runs[i - 1].script != USCRIPT_COMMON) {
         run.script = runs[i - 1].script;
         return;
     }

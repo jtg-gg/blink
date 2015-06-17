@@ -123,9 +123,13 @@ CodePath Character::characterRangeCodePath(const UChar* characters, unsigned len
     };
 
     CodePath result = SimplePath;
+    bool previousCharacterIsEmojiGroupCandidate = false;
     for (unsigned i = 0; i < len; i++) {
         const UChar c = characters[i];
+        if (c == zeroWidthJoinerCharacter && previousCharacterIsEmojiGroupCandidate)
+            return ComplexPath;
 
+        previousCharacterIsEmojiGroupCandidate = false;
         // Shortcut for common case
         if (c < 0x2E5)
             continue;
@@ -152,6 +156,13 @@ CodePath Character::characterRangeCodePath(const UChar* characters, unsigned len
             if (supplementaryCharacter <= 0x1F1FF)
                 return ComplexPath;
 
+            if (supplementaryCharacter >= 0x1F466 && supplementaryCharacter <= 0x1F469) {
+                previousCharacterIsEmojiGroupCandidate = true;
+                continue;
+            }
+            if (supplementaryCharacter >= 0x1F3FB && supplementaryCharacter <= 0x1F3FF)
+                return ComplexPath;
+          
             if (supplementaryCharacter < 0xE0100) // U+E0100 through U+E01EF Unicode variation selectors.
                 continue;
             if (supplementaryCharacter <= 0xE01EF)

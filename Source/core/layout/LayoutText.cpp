@@ -1698,6 +1698,16 @@ inline bool isRegionalIndicator(UChar32 c)
     return 0x1F1E6 <= c && c <= 0x1F1FF;
 }
 
+static inline bool isEmojiGroupCandidate(UChar32 character)
+{
+    return (character >= 0x1F466 && character <= 0x1F469) || character == 0x2764 || character == 0x1F48B;
+}
+
+static inline bool isEmojiModifier(UChar32 character)
+{
+    return character >= 0x1F3FB && character <= 0x1F3FF;
+}
+
 #endif
 
 int LayoutText::previousOffsetForBackwardDeletion(int current) const
@@ -1707,6 +1717,8 @@ int LayoutText::previousOffsetForBackwardDeletion(int current) const
     StringImpl& text = *m_text.impl();
     UChar32 character;
     bool sawRegionalIndicator = false;
+    bool sawEmojiGroupCandidate = false;
+    bool sawEmojiModifier = false;
     while (current > 0) {
         if (U16_IS_TRAIL(text[--current]))
             --current;
@@ -1714,6 +1726,22 @@ int LayoutText::previousOffsetForBackwardDeletion(int current) const
             break;
 
         UChar32 character = text.characterStartingAt(current);
+
+        if (sawEmojiGroupCandidate) {
+            sawEmojiGroupCandidate = false;
+            if (character == zeroWidthJoinerCharacter)
+                continue;
+            // We could have two emoji group candidates without a joiner in between.
+            // Those should not be treated as a group.
+            U16_FWD_1_UNSAFE(text, current);
+            break;
+        }
+
+        if (sawEmojiModifier) {
+            if (isEmojiModifier(character))
+                U16_FWD_1_UNSAFE(text, current);
+            break;
+        }
 
         if (sawRegionalIndicator) {
             // We don't check if the pair of regional indicator symbols before current position can actually be combined
@@ -1731,6 +1759,16 @@ int LayoutText::previousOffsetForBackwardDeletion(int current) const
 
         if (isRegionalIndicator(character)) {
             sawRegionalIndicator = true;
+            continue;
+        }
+   
+        if (isEmojiModifier(character)) {
+            sawEmojiModifier = true;
+            continue;
+        }
+
+        if (isEmojiGroupCandidate(character)) {
+            sawEmojiGroupCandidate = true;
             continue;
         }
 
