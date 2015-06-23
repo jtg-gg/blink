@@ -675,8 +675,8 @@ public:
     // text form. This is used only by layout tests.
     virtual WebString layerTreeAsText(bool showDebugInfo = false) const = 0;
 
+    BLINK_EXPORT static WebFrame* fromFrame(Frame*);
 #if BLINK_IMPLEMENTATION
-    static WebFrame* fromFrame(Frame*);
 #if ENABLE(OILPAN)
     static void traceFrames(Visitor*, WebFrame*);
     static void traceFrames(InlinedGlobalMarkingVisitor, WebFrame*);
