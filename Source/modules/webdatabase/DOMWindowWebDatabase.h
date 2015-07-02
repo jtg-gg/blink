@@ -39,7 +39,7 @@ class ExceptionState;
 
 class DOMWindowWebDatabase {
 public:
-    static Database* openDatabase(DOMWindow&, const String& name, const String& version, const String& displayName, unsigned long estimatedSize, DatabaseCallback* creationCallback, ExceptionState&);
+    static Database* openDatabase(DOMWindow&, const String& name, const String& version, const String& displayName, unsigned long estimatedSize, const String& immediateCommand, DatabaseCallback* creationCallback, ExceptionState&);
 
 private:
     DOMWindowWebDatabase() { };

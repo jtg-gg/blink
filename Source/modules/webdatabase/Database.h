@@ -54,7 +54,7 @@ public:
     virtual ~Database();
     DECLARE_TRACE();
 
-    bool openAndVerifyVersion(bool setVersionInNewDatabase, DatabaseError&, String& errorMessage);
+    bool openAndVerifyVersion(bool setVersionInNewDatabase, const String& immediateCommand, DatabaseError&, String& errorMessage);
     void close();
 
     SQLTransactionBackend* runTransaction(SQLTransaction*, bool readOnly, const ChangeVersionData*);
@@ -118,7 +118,7 @@ private:
     class DatabaseTableNamesTask;
 
     Database(DatabaseContext*, const String& name, const String& expectedVersion, const String& displayName, unsigned long estimatedSize);
-    bool performOpenAndVerify(bool setVersionInNewDatabase, DatabaseError&, String& errorMessage);
+    bool performOpenAndVerify(bool setVersionInNewDatabase, const String& immediateCommand, DatabaseError&, String& errorMessage);
 
     void scheduleTransaction();
 

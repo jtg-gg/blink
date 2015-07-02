@@ -175,14 +175,14 @@ static void logOpenDatabaseError(ExecutionContext* context, const String& name)
 
 Database* DatabaseManager::openDatabaseInternal(ExecutionContext* context,
     const String& name, const String& expectedVersion, const String& displayName,
-    unsigned long estimatedSize, bool setVersionInNewDatabase, DatabaseError& error, String& errorMessage)
+    unsigned long estimatedSize, const String& immediateCommand, bool setVersionInNewDatabase, DatabaseError& error, String& errorMessage)
 {
     ASSERT(error == DatabaseError::None);
 
     DatabaseContext* backendContext = databaseContextFor(context)->backend();
     if (DatabaseTracker::tracker().canEstablishDatabase(backendContext, name, displayName, estimatedSize, error)) {
         Database* backend = new Database(backendContext, name, expectedVersion, displayName, estimatedSize);
-        if (backend->openAndVerifyVersion(setVersionInNewDatabase, error, errorMessage))
+        if (backend->openAndVerifyVersion(setVersionInNewDatabase, immediateCommand, error, errorMessage))
             return backend;
     }
 
@@ -204,14 +204,14 @@ Database* DatabaseManager::openDatabaseInternal(ExecutionContext* context,
 
 Database* DatabaseManager::openDatabase(ExecutionContext* context,
     const String& name, const String& expectedVersion, const String& displayName,
-    unsigned long estimatedSize, DatabaseCallback* creationCallback,
+    unsigned long estimatedSize, const String& immediateCommand, DatabaseCallback* creationCallback,
     DatabaseError& error, String& errorMessage)
 {
     ASSERT(error == DatabaseError::None);
 
     bool setVersionInNewDatabase = !creationCallback;
     Database* database = openDatabaseInternal(context, name,
-        expectedVersion, displayName, estimatedSize, setVersionInNewDatabase, error, errorMessage);
+        expectedVersion, displayName, estimatedSize, immediateCommand, setVersionInNewDatabase, error, errorMessage);
     if (!database)
         return nullptr;
 
