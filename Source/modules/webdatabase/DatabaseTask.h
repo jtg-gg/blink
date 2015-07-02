@@ -74,13 +74,13 @@ private:
 
 class Database::DatabaseOpenTask final : public DatabaseTask {
 public:
-    static PassOwnPtr<DatabaseOpenTask> create(Database* db, bool setVersionInNewDatabase, TaskSynchronizer* synchronizer, DatabaseError& error, String& errorMessage, bool& success)
+    static PassOwnPtr<DatabaseOpenTask> create(Database* db, bool setVersionInNewDatabase, TaskSynchronizer* synchronizer, const String& immediateCommand, DatabaseError& error, String& errorMessage, bool& success)
     {
-        return adoptPtr(new DatabaseOpenTask(db, setVersionInNewDatabase, synchronizer, error, errorMessage, success));
+        return adoptPtr(new DatabaseOpenTask(db, setVersionInNewDatabase, synchronizer, immediateCommand, error, errorMessage, success));
     }
 
 private:
-    DatabaseOpenTask(Database*, bool setVersionInNewDatabase, TaskSynchronizer*, DatabaseError&, String& errorMessage, bool& success);
+    DatabaseOpenTask(Database*, bool setVersionInNewDatabase, TaskSynchronizer*, const String& immediateCommand, DatabaseError&, String& errorMessage, bool& success);
 
     virtual void doPerformTask() override;
 #if !LOG_DISABLED
@@ -90,6 +90,7 @@ private:
     bool m_setVersionInNewDatabase;
     DatabaseError& m_error;
     String& m_errorMessage;
+    const String& m_immediateCommand;
     bool& m_success;
 };
 

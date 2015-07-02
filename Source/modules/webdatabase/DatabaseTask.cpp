@@ -83,11 +83,12 @@ void DatabaseTask::run()
 // *** DatabaseOpenTask ***
 // Opens the database file and verifies the version matches the expected version.
 
-Database::DatabaseOpenTask::DatabaseOpenTask(Database* database, bool setVersionInNewDatabase, TaskSynchronizer* synchronizer, DatabaseError& error, String& errorMessage, bool& success)
+Database::DatabaseOpenTask::DatabaseOpenTask(Database* database, bool setVersionInNewDatabase, TaskSynchronizer* synchronizer, const String& immediateCommand, DatabaseError& error, String& errorMessage, bool& success)
     : DatabaseTask(database, synchronizer)
     , m_setVersionInNewDatabase(setVersionInNewDatabase)
     , m_error(error)
     , m_errorMessage(errorMessage)
+    , m_immediateCommand(immediateCommand)
     , m_success(success)
 {
     ASSERT(synchronizer); // A task with output parameters is supposed to be synchronous.
@@ -96,7 +97,7 @@ Database::DatabaseOpenTask::DatabaseOpenTask(Database* database, bool setVersion
 void Database::DatabaseOpenTask::doPerformTask()
 {
     String errorMessage;
-    m_success = database()->performOpenAndVerify(m_setVersionInNewDatabase, m_error, errorMessage);
+    m_success = database()->performOpenAndVerify(m_setVersionInNewDatabase, m_immediateCommand, m_error, errorMessage);
     if (!m_success)
         m_errorMessage = errorMessage.isolatedCopy();
 }
