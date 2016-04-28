@@ -434,11 +434,22 @@ bool Database::performOpenAndVerify(bool shouldSetVersionInNewDatabase, const St
         errorMessage = formatErrorMessage("unable to open database", m_sqliteDatabase.lastError(), m_sqliteDatabase.lastErrorMsg());
         return false;
     }
-    if (immediateCommand.length())
-        m_sqliteDatabase.executeCommand(immediateCommand);
 
-    m_sqliteDatabase.setBusyTimeout(maxSqliteBusyWaitTime);
+    if (immediateCommand.length()) {
+        Vector<String> result;
+        immediateCommand.split(";", result);
+        for (auto i = result.begin(); i != result.end(); i++){
+            m_sqliteDatabase.executeCommand(*i);
+        }
+    }
 
+    /*m_sqliteDatabase.executeCommand("SELECT count(*) FROM sqlite_master;");
+    if(m_sqliteDatabase.lastError()) {
+        errorMessage = formatErrorMessage("unable to open database", m_sqliteDatabase.lastError(), m_sqliteDatabase.lastErrorMsg());
+        m_sqliteDatabase.close();
+        return false;
+    }*/
+  
     if (!m_sqliteDatabase.turnOnIncrementalAutoVacuum())
         WTF_LOG_ERROR("Unable to turn on incremental auto-vacuum (%d %s)", m_sqliteDatabase.lastError(), m_sqliteDatabase.lastErrorMsg());
 
